@@ -32,16 +32,15 @@ bool check_solution(SOLN_ARGS sol_args) {
 
     /* Finding alpha and beta for the target */
     int32 difficulty = sol_args.difficulty;
-    
+    int32 difficulty_copy = difficulty;
     int32 alpha;
     BYTE beta[BYTE_LENGTH];
     uint256_init(beta);
-    alpha = ((((1 << 8) - 1) << 24) & difficulty) >> 24;
-    int32 beta_num = ((1 << 24) - 1) & difficulty; 
-    fprintf(stdout, "Number beta is: %d\n", beta_num); 
-    for(int i = BYTE_LENGTH - 1; i >= 0; i--) {
-        beta[i] = beta_num & 0xFF;
-        beta_num = beta_num >> 8;
+    alpha = (((1 << 8) - 1) << 24) & difficulty;
+
+    for(int i = BYTE_LENGTH - 1; i > 0; i--) {
+        beta[i] = difficulty_copy & 0xFF;
+        difficulty_copy = difficulty_copy >> 8;
     }
     fprintf(stdout, "Alpha is: %d\n", alpha); 
     fprintf(stdout, "Beta is:");

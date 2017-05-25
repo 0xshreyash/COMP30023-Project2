@@ -67,7 +67,7 @@ void reply_to_soln(char* buffer, int sd) {
          return;
      }
      args.difficulty = strtol(temp, NULL, 16);
-     fprintf(stdout, "Difficulty: %d\n", args.difficulty); 
+     fprintf(stdout, "Difficulty: %d", args.difficulty); 
      memset(temp, 0, SEED_LEN + 1);
      strcpy(temp, strtok(NULL, " "));
      if(strlen(temp) != SEED_LEN) {
@@ -95,7 +95,6 @@ void reply_to_soln(char* buffer, int sd) {
          return;
      }
      args.nonce = strtol(temp, NULL, 16);
-     fprintf(stdout, "Nonce if %ld\n", args.nonce); 
      fflush(stdout); 
 
      if(check_solution(args)) {
@@ -105,7 +104,7 @@ void reply_to_soln(char* buffer, int sd) {
          char *error = form_error(" Given solution is invalid");
          my_send(error, sd); 
      }
-     fprintf(stdout, "-----------------------------\n"); 
+     fprintf(stdout, "-----------------------------"); 
      fflush(stdout);
 }
 
