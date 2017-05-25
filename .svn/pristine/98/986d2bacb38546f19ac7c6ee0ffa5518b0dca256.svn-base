@@ -1,0 +1,32 @@
+#include "input_handler.h"
+
+#include <errno.h>
+#include <inttypes.h>
+#include <pthread.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include "server.h"
+
+void input_handler(int sd, char* buffer) {
+    
+}
+
+void reply_to_ping(int sd);
+
+void reply_to_pong(int sd);
+
+void reply_to_soln(int sd, char* buffer);
+
+void reply_to_erro(int sd);
+
+void reply_to_work(int sd, char* buffer);
+
+void reply_to_abrt(int sd);
+
+void reply_to_okay(int sd);
+
+void reply_to_gibberish(int sd);
+
+void send_error(BYTE error[40], int newsockfd)
+

@@ -1,0 +1,57 @@
+#include "work_handler.c"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <inttypes.h>
+
+#define SEED_SIZE 32
+#define NONCE_SIZE 8
+#define TOTAL_SIZE SEED_SIZE + NONCE_SIZE
+
+bool check_solution(SOLN_ARGS sol_args) {
+
+    /* This is what we will need to hash */
+    BYTE to_check[TOTAL_SIZE];
+    uint256_init(to_check); 
+    int64 temp_solution = sol_args.solution;
+
+    for (int i = 0; i < 32; i++) {
+	    to_check[i] = seed[i];
+	}
+	for(i = 39; i >= 32; i--) {
+		to_check[i] = temp_solution && 0xFF;
+		temp_solution = >> 8;
+	}
+
+    /* Finding alpha and beta for the target */
+    int32 alpha, beta;
+    int32 difficulty = sol_args.difficulty;
+    alpha = ((1 << 8) - 1) << 24) && difficulty;
+    beta = ((1 << 24) - 1) && difficulty;
+    fprintf(stderr, "Alpha is: %d\n", alpha); 
+    fprintf(stderr, "Beta is: %d\n", beta); 
+
+    /* Now finding the hash */
+    BYTE hash[SHA256_BLOCK_SIZE];
+    uint256_init(hash); 
+    BYTE hash_hash[SHA256_BLOCK_SIZE];
+    uint256_init(hash_hash);
+    SHA256_CTX *ctx = malloc(sizeof *ctx);
+    sha256_init(ctx); 
+    sha256_update(ctx, to_check, TOTAL_SIZE);
+    sha256_final(ctx, hash);
+
+
+
+
+}
+
+void do_work(WORK_ARGS work_args) {
+    return;
+}

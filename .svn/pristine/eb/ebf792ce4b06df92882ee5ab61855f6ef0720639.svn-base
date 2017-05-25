@@ -1,33 +1,27 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "uint256.h"
-#include "sha256.h"
-
 /* Stand-alone messages */ 
-#define PING "PING"
-#define PONG "PONG"
-#define OKAY "OKAY"
-#define ABRT "ABRT"
+#define PING "PING\r\n"
+#define PONG "PONG\r\n"
+#define OKAY "OKAY\r\n"
+#define ABRT "ABRT\r\n"
 
-/* Messages that have some suffix so are longer*/
+/* Messages that have some suffix */
 #define ERRO "ERRO"
 #define SOLN "SOLN"
 #define WORK "WORK"
 
-#define CRLF "\r\n"
-
 #define MAX_CLIENTS 100
 #define MAX_PENDING_JOBS 10
 #define BUFFER_SIZE 256
-#define MAX_MESSAGE_LEN 150
-#define ERROR_MESSAGE_LEN 40
 
 typedef struct client {
     int socket;
     char buffer[BUFFER_SIZE + 1];
 } Client;
 
-
+#include "uint256.h"
+#include "sha256.h"
 
 #endif

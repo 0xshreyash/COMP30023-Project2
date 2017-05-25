@@ -12,10 +12,10 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros  
 #include <stdbool.h>
 
-#include "input_handler.h"
 
 #define TRUE   1 
 #define FALSE  0
+
 
 /**
  * The code here is very similar to the code explained in the following
@@ -26,7 +26,7 @@
  * The code has been appropriated to fit into the assignment spec
  */
 int main(int argc, char *argv[]) {
-    signal(SIGPIPE, SIG_IGN);
+
     if(argc < 2) {
         fprintf(stderr, "Please provide a port");
         exit(EXIT_SUCCESS);
@@ -53,13 +53,11 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    /*
     if(setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, 
        sizeof(opt)) < 0 )  {  
         perror("setsockopt");  
         exit(EXIT_FAILURE);  
     } 
-    */
 
     memset(&myaddr, 0, sizeof(myaddr));
     port_no = atoi(argv[1]);
@@ -67,18 +65,20 @@ int main(int argc, char *argv[]) {
     myaddr.sin_port = htons(port_no);
 	myaddr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(master_socket, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {  
+    if (bind(master_socket, (struct sockaddr *)&myaddr, sizeof(myaddr))<0)  
+    {  
         perror("Binding failed. Please try again.");  
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);  
     }
 
-    if (listen(master_socket, MAX_CLIENTS) < 0) {  
+    //try to specify maximum of 100 clients for the master socket 
+    if (listen(master_socket, MAX_CLIENTS) < 0)  
+    {  
         perror("Something went wrong when listening to the clients");  
         exit(EXIT_FAILURE);  
     }
 
     while(TRUE) {
-
         FD_ZERO(&readfds);
         FD_SET(master_socket, &readfds); 
         max_sd = master_socket;
@@ -93,56 +93,58 @@ int main(int argc, char *argv[]) {
         }
         // Wait for activity in one of the sockets, no write or except
         // sockets. No timeout either, can timeout if needed.
-        activity = select(max_sd + 1 , &readfds , NULL , NULL , NULL);
-        if ((activity < 0) && (errno!=EINTR)) {  
-            fprintf(stdout, "Select error");  
+        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+        if ((activity < 0) && (errno!=EINTR))  
+        {  
+            fprintf(stderr, "Select error");  
         }  
+
         //If something happened on the master socket, 
         //then its an incoming connection 
-        if (FD_ISSET(master_socket, &readfds)) {  
-            int socket_length = sizeof(myaddr); 
+        if (FD_ISSET(master_socket, &readfds))  
+        {  
             if ((new_socket = accept(master_socket, 
-            (struct sockaddr *)&myaddr, (socklen_t*)&socket_length))<0) {  
-                perror("Accept Error");
+                    (struct sockaddr *)&myaddr, (socklen_t*)&myaddr))<0) {  
+                perror("Accept Error");  
+                exit(EXIT_FAILURE);  
             }  
             
+            //inform user of socket number - used in send and receive commands 
+            fprintf(stderr, "New connection , socket fd is %d , ip is : %s , port : %d \n" 
+            , new_socket , inet_ntoa(myaddr.sin_addr) , ntohs
+                  (myaddr.sin_port));
             //add new socket to array of sockets 
-            for (int i = 0; i < MAX_CLIENTS; i++) {  
+            for (int i = 0; i < MAX_CLIENTS; i++)  
+            {  
                 //if position is empty 
-                if(clients[i].socket == 0) {  
+                if( clients[i].socket == 0 )  
+                {  
                     clients[i].socket = new_socket;  
-                    //fprintf(stderr, "Adding to list of sockets as %d\n" , i);  
+                    fprintf(stderr, "Adding to list of sockets as %d\n" , i);  
                     break;  
                 }  
             }  
         }
-        // Something that may cause me problems is if there is
-        // a correct incomplete message + gibberish + rest of message
-        // I may read this as being correct. 
-        for (int i = 0; i < MAX_CLIENTS; i++) {  
+
+        for (int i = 0; i < MAX_CLIENTS; i++)  
+        {  
             sd = clients[i].socket;  
             //int old_len = 0;
-            if (FD_ISSET(sd , &readfds)) {
-                if ((len = read(sd, temp, BUFFER_SIZE)) == 0) {
+            if (FD_ISSET(sd , &readfds))  
+            {
+                if ((len = read(sd, temp, BUFFER_SIZE)) == 0)  
+                {  
+                    //Close the socket and mark as 0 in list for reuse 
+					//fprintf(stdout, "Closing socket %d\n", newsockfd);
                     close(sd);
                     clients[i].socket = 0;
-                    memset(clients[i].buffer, 0, BUFFER_SIZE + 1); 
                 }
-                // Max message len has been reached, ask client to dial it down
-                // a bit. 
-                if(len + strlen(clients[i].buffer) > BUFFER_SIZE) {
-                    fprintf(stdout, "Should not enter here, need to implement this"); 
-                    memset(clients[i].buffer, 0, BUFFER_SIZE + 1);
-                    int k = 0;
-                    while(temp[k] != '\0') {
-                        if(k < (len - 2) && temp[k] == '\r' && temp[k + 1] == '\n') {
-                            strcpy(clients[i].buffer, temp + k + 2); 
-                        }
-                        k++; 
-                    }
-                    // NEED TO CHANGE THIS. 
-                    exit(EXIT_FAILURE); 
+
+                if(len + strlen(clients[i].buffer) > 256) {
+                    send_error()
+                    exit(EXIT_FAILURE);
                 }
+
                 else {
                     strcat(clients[i].buffer, temp); 
                     memset(temp, 0, BUFFER_SIZE); 
@@ -156,24 +158,21 @@ int main(int argc, char *argv[]) {
                     if(j != BUFFER_SIZE - 1 && clients[i].buffer[j] == '\r' && 
                     clients[i].buffer[j + 1] == '\n') {
 
-                        strncpy(first_message, clients[i].buffer, j);
-                        first_message[j] = '\0';
-                        strcpy(rest_message, clients[i].buffer + j + 3);
-                        fprintf(stdout, "Rest message is: %s\n", rest_message);
-                        input_handler(first_message, sd);
+                        strncpy(first_message, clients[i].buffer, j + 2);
+                        first_message[j + 3] = '\0';
+                        strcpy(rest_message, clients[i].buffer + j + 1 + 1);
+                        fprintf(stderr, "Rest message is: %s\n", rest_message);
+                        input_handler(first_message);
                         memset(clients[i].buffer, 0, BUFFER_SIZE + 1);
                         strcpy(clients[i].buffer, rest_message); 
                         free(rest_message);
-                        free(first_message);
-                        j += 2;    
-                    }
-                    else {
-                        j++;
+                        free(first_message); 
                     }
                 }
             }  
         }    
     }
+    
     close(master_socket);
     return EXIT_SUCCESS;
 }
