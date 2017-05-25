@@ -12,6 +12,7 @@
 #include "server.h"
 #include "work_handler.h"
 
+#define LONGEST_SEQUENCE 64
 #define DIFFICULTY_LEN 8
 #define SEED_LEN 64
 #define NONCE_LEN 16
@@ -32,7 +33,9 @@ void input_handler(char* buffer, int sd) {
         reply_to_okay(sd); 
     }
     else if(strncmp(buffer, SOLN, 4) == 0) {
-        reply_to_soln(buffer, sd);
+        fprintf(stdout, "Fine here\n"); 
+        fflush(stdout); 
+        reply_to_soln(buffer, sd); 
     }
     else if(strncmp(buffer, WORK, 4) == 0) {
         reply_to_work(buffer, sd); 
@@ -46,66 +49,16 @@ void input_handler(char* buffer, int sd) {
 }
 
 void reply_to_pong(int sd) {
+    // Log here
+    //fprintf(stdout, "PONG received");
     char *suffix = " PONG message reserved for the server only";
     char *error_message = form_error(suffix);
     my_send(error_message, sd); 
 }
 
 void reply_to_soln(char* buffer, int sd) {
-     fprintf(stdout, "-----------------------------\n"); 
-     fprintf(stdout, "Buffer for soln is: %s\n", buffer); 
-     SOLN_ARGS args;
-     uint256_init(args.seed); 
-     char temp[SEED_LEN + 1];
-     memset(temp, 0, SEED_LEN + 1); 
-     strtok(buffer, " ");
-     strcpy(temp, strtok(NULL, " "));
-     if(strlen(temp) != DIFFICULTY_LEN) {
-         char *suffix = " Malformed Solution message";
-         char *error = form_error(suffix);
-         my_send(error, sd); 
-         return;
-     }
-     args.difficulty = strtol(temp, NULL, 16);
-     fprintf(stdout, "Difficulty: %d", args.difficulty); 
-     memset(temp, 0, SEED_LEN + 1);
-     strcpy(temp, strtok(NULL, " "));
-     if(strlen(temp) != SEED_LEN) {
-         char *suffix = " Malformed Solution message";
-         char *error = form_error(suffix);
-         my_send(error, sd);
-         return;
-     }
-     for(int i = SEED_LEN/2 - 1; i >= 0; i--) {
-         char one_byte[3];
-         strncpy(one_byte, temp + 2*i, 2); 
-         one_byte[2] = '\0';
-         args.seed[i] = strtol(one_byte, NULL, 16); 
-     }
-     fprintf(stdout, "Seed is: ");
-     print_uint256(args.seed);
-     fprintf(stdout, "\n");
-     fflush(stdout);
-     memset(temp, 0, SEED_LEN + 1);
-     strcpy(temp, strtok(NULL, CRLF));  
-     if(strlen(temp) != NONCE_LEN) {
-         char *suffix = " Malformed Solution message";
-         char *error = form_error(suffix);
-         my_send(error, sd); 
-         return;
-     }
-     args.nonce = strtol(temp, NULL, 16);
-     fflush(stdout); 
-
-     if(check_solution(args)) {
-         my_send(OKAY, sd);
-     }
-     else {
-         char *error = form_error(" Given solution is invalid");
-         my_send(error, sd); 
-     }
-     fprintf(stdout, "-----------------------------"); 
-     fflush(stdout);
+     
+    
 }
 
 void reply_to_erro(int sd) {
@@ -140,7 +93,7 @@ char *form_error(char *suffix) {
     memset(error, 0, HEADER_LENGTH + strlen(suffix + 1)); 
     strcpy(error, ERRO); 
     strcat(error, suffix);
-    //strcat(error, CRLF); 
+    strcat(error, CRLF); 
     error[strlen(error)] = '\0'; 
     return error;
 }
@@ -150,7 +103,7 @@ void my_send(char message[MAX_MESSAGE_LEN], int sd) {
     char protocol_message[MAX_MESSAGE_LEN + HEADER_LENGTH + 1];
     memset(protocol_message, 0, MAX_MESSAGE_LEN + HEADER_LENGTH + 1);
     strcat(protocol_message, (char*)message);
-    strcat(protocol_message, CRLF);
+    strcat(protocol_message, "\r\n");
     protocol_message[strlen(protocol_message)] = '\0';
     unsigned int n = send(sd, (BYTE *)protocol_message, strlen(protocol_message), 0); 
     if (n !=  strlen(protocol_message)) {

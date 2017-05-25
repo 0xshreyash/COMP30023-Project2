@@ -20,7 +20,7 @@ bool check_solution(SOLN_ARGS sol_args) {
     /* This is what we will need to hash */
     BYTE to_check[TOTAL_SIZE];
     uint256_init(to_check); 
-    int64 temp_solution = sol_args.nonce;
+    int64 temp_solution = sol_args.solution;
 
     for (int i = 0; i < BYTE_LENGTH; i++) {
 	    to_check[i] = sol_args.seed[i];

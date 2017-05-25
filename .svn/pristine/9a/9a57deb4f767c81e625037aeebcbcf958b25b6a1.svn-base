@@ -149,9 +149,9 @@ int main(int argc, char *argv[]) {
                     memset(rest_message, 0, BUFFER_SIZE + 1); 
                     if(j != BUFFER_SIZE - 1 && clients[i].buffer[j] == '\r' && 
                     clients[i].buffer[j + 1] == '\n') {
-                        /*if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0) {
+                        if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0) {
                             fprintf(stdout, "Buffer inside check is : %s\n", clients[i].buffer);
-                        }*/
+                        }
                         fflush(stdout); 
                         strncpy(first_message, clients[i].buffer, j);
                         first_message[j] = '\0';
@@ -163,10 +163,10 @@ int main(int argc, char *argv[]) {
                         clients[i].buffer[strlen(clients[i].buffer)] = '\0';
                         free(rest_message);
                         free(first_message);
-                        /*if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0
+                        if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0
                         && strcmp(clients[i].buffer, "") != 0) {
                             fprintf(stdout, "Buffer towards end is : %s\n", clients[i].buffer);
-                        }*/
+                        }
                         j = 0;
                     }
                     else {
