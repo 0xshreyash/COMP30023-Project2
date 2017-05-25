@@ -1,0 +1,310 @@
+/* 
+ * Module for creating and manipulating doubly-linked lists of void * data
+ * type was originally created for COMP20007 Design of Algorithms 2017
+ * by Matt Farrugia <matt.farrugia@unimelb.edu.au>, and turned to a doubly
+ * linked list by Shreyash Patodia <spatodia@student.unimelb.edu.au>, 
+ * Student ID - 767336, login- spatodia for COMP30023, Project - 1.
+ * 
+ * Some additional functions were also added in order to allow me to be able
+ * correcly use the data structure in the project. Those functions have been
+ * placed on the top of the file for easy access. 
+ *
+ */
+
+
+/**************** Including Libraries **********************/
+#include <stdlib.h>
+#include <assert.h>
+#include "list.h"
+
+/**************** Structure definitions ********************/
+
+// a list node points to the next and previosu node in the list, 
+// and to some data
+struct node {
+    Node *next;
+	Node *prev;
+	void *data;
+};
+
+// a list points to its first and last nodes, and stores 
+// its size (num. nodes)
+struct list {
+	Node *head;
+	Node *tail;
+	int size;
+	//List *list;
+};
+
+/**************** Function Declarations ********************/
+
+// helper function to create a new node and return its address
+Node *new_node();
+
+// helper function to clear memory of a node (does not free the node's data)
+void free_node(Node *node);
+
+/**************** Function Definitions *********************/
+
+     /* Functions created by Shreyash Patodia */ 
+
+/*
+ * Finds the next node to the previous node
+ *
+ * params -
+ * node the node who's next node is to be found
+ *
+ * return -
+ * the next node to the node passed as parameter, may be null. 
+ */
+Node *get_next(Node *node) {
+	if(!node->next){
+		return NULL; 
+	}
+	return node->next;
+}
+
+/*
+ * Gets the data from a given node.
+ *
+ * params - 
+ * node - the node to get the data of.
+ * 
+ * return -
+ * the data in the node as a void * type. 
+ */
+void *get_data(Node *node) {
+	return node->data;
+}
+
+/*
+ * Returns the head of the list as a node. 
+ *
+ * params -
+ * list the list who's head is to be returned
+ * 
+ * return -
+ * the head of the list
+ */
+Node *get_head(List *list) {
+	return list->head;
+}
+
+/*
+ * Removes a Node from the list, irrespective of the
+ * position of the node and returns the data stored
+ * in it.
+ *
+ * params -
+ * list the list to remove the node from
+ * node the node to remove. 
+ * 
+ * return -
+ * the data in the node just removed.
+ */ 
+void *remove_from_middle(List *list, Node *node) {
+
+	Node *n = list->head;
+	if(list->head == node) {
+		return list_remove_start(list);	
+	}
+	else if(list->tail == node) {
+		return list_remove_end(list);
+	}
+	while(n->next != node) {
+		n = n->next;
+	}
+
+	n->next = node->next;
+	if(node->next)
+		node->next->prev = n;
+	
+	void *data = node->data;
+	free_node(node);
+	list->size --;
+	return data;
+}
+
+/**********************************************************************/
+         /**** Functions create by Matt Farrugia *****/
+
+// create a new list and return a pointer to it
+List *new_list() {
+	List *list = malloc(sizeof *list);
+	assert(list);
+	
+	list->head = NULL;
+	list->tail = NULL;
+	list->size = 0;
+
+	return list;
+}
+
+// destroy a list and free its memory
+void free_list(List *list) {
+	assert(list != NULL);
+	// free each node
+	Node *node = list->head;
+	Node *next;
+	while (node) {
+		next = node->next;
+		free_node(node);
+		node = next;
+	}
+	// free the list struct itself
+	free(list);
+}
+
+// helper function to create a new node and return its address
+Node *new_node() {
+	Node *node = malloc(sizeof *node);
+	assert(node);
+	
+	return node;
+}
+
+// helper function to clear memory of a node
+void free_node(Node *node) {
+	free(node);
+}
+
+// add an element to the front of a list
+// this operation is O(1)
+void list_add_start(List *list, void *data) {
+	assert(list != NULL);
+
+	// create and initialise a new list node
+	Node *node = new_node();
+	node->data = data;
+	node->next = list->head; 
+	node->prev = NULL;
+
+	// place it at the start of the list
+	list->head = node;
+
+	// if list was empty, this new node is also the last node now
+	if(list->size == 0) {
+		list->tail = node;
+	}
+	else {
+		list->head->next->prev = list->head;
+	}
+
+	// and we need to keep size updated!
+	list->size++;
+}
+
+// add an element to the back of a list
+// this operation is O(1)
+void list_add_end(List *list, void *data) {
+	assert(list != NULL);
+	
+	// we'll need a new list node to store this data
+	Node *node = new_node();
+	node->data = data;
+	node->next = NULL;
+	node->prev = list->tail; // as the last node, there's no next node
+
+	if(list->size == 0) {
+		// if the list was empty, new node is now the first node
+		list->head = node;
+	} else {
+		// otherwise, it goes after the current last node
+		list->tail->next = node;
+	}
+	
+	// place this new node at the end of the list
+	list->tail = node;
+	
+	// and keep size updated too
+	list->size++;
+}
+
+// remove and return the front data element from a list
+// this operation is O(1)
+// error if the list is empty (so first ensure list_size() > 0)
+void *list_remove_start(List *list) {
+	assert(list != NULL);
+	assert(list->size > 0);
+	
+	// we'll need to save the data to return it
+	Node *start_node = list->head;
+	void *data = start_node->data;
+	
+	// then replace the head with its next node (may be null)
+	list->head = list->head->next;
+
+	// if this was the last node in the list, the tail also needs to be cleared
+	if(list->size == 1) {
+		list->tail = NULL;
+	}
+	else {
+		list->head->prev = NULL;
+	}
+
+	// the list is now one node smaller
+	list->size--;
+
+	// and we're finished with the node holding this data
+	free_node(start_node);
+
+	// done!
+	return data;
+}
+
+// remove and return the final data element in a list
+// this operation is O(n), where n is the number of elements in the list
+// error if the list is empty (so first ensure list_size() > 0)
+void *list_remove_end(List *list) {
+	assert(list != NULL);
+	assert(list->size > 0);
+	
+	// we'll need to save the data to return it
+	Node *end_node = list->tail;
+	void *data = end_node->data;
+	
+	// then replace the tail with the second-last node (may be null)
+	// (to find this replacement, we'll need to walk the list --- the O(n) bit
+	Node *node = list->head;
+	Node *prev_node = NULL;
+	while (node->next) {
+		prev_node = node;
+		node = node->next;
+	}
+
+	list->tail = prev_node;
+	list->tail->next = NULL;
+	
+	if(list->size == 1) {
+		// if we're removing the last node, the head also needs clearing
+		list->head = NULL;
+	} else {
+		// otherwise, the second-last node needs to drop the removed last node
+		prev_node->next = NULL;
+		
+	}
+
+	// the list just got one element shorter
+	list->size--;
+
+	// we're finished with the list node holding this data
+	free_node(end_node);
+
+	// done!
+	return data;
+}
+
+// return the number of elements contained in a list
+int list_size(List *list) {
+	assert(list != NULL);
+	return list->size;
+}
+
+// returns whether the list contains no elements (true) or some elements 
+// (false)
+bool list_is_empty(List *list) {
+	assert(list != NULL);
+	return (list->size==0);
+}
+
+/***********************************************************************/

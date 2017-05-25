@@ -11,17 +11,10 @@
 
 #include "server.h"
 #include "work_handler.h"
-#include "queue.h"
 
 #define DIFFICULTY_LEN 8
 #define SEED_LEN 64
 #define NONCE_LEN 16
-#define SOLN_LEN 95
-#define WORK_LEN 98
-#define THREAD_LEN 2
-
-void print_soln(char *buffer, int sd); 
-void print_work(char *buffer, int sd);
 
 void input_handler(char* buffer, int sd) {
     
@@ -39,12 +32,10 @@ void input_handler(char* buffer, int sd) {
         reply_to_okay(sd); 
     }
     else if(strncmp(buffer, SOLN, 4) == 0) {
-        //print_soln(buffer, sd); 
         reply_to_soln(buffer, sd);
     }
     else if(strncmp(buffer, WORK, 4) == 0) {
-        //print_work(buffer, sd); 
-        add_to_work_queue(buffer, sd); 
+        reply_to_work(buffer, sd); 
     }
     else if(strncmp(buffer, ABRT, 4) == 0) {
         client_abort(sd); 
@@ -60,41 +51,17 @@ void reply_to_pong(int sd) {
     my_send(error_message, sd); 
 }
 
-void print_soln(char *buffer, int sd) {
-     fprintf(stdout, "-----------------------------\n"); 
-     fprintf(stdout, "Buffer for soln is: %s\n", buffer); 
-     fprintf(stdout, "-----------------------------\n"); 
-     fflush(stdout);
-
-     my_send("OKAY", sd); 
-}
-
-void print_work(char *buffer, int sd) {
-     fprintf(stdout, "-----------------------------\n"); 
-     fprintf(stdout, "Buffer for soln is: %s\n", buffer); 
-     fprintf(stdout, "-----------------------------\n"); 
-     fflush(stdout);
-
-     my_send("IMCDCDDD", sd); 
-}
-
 void reply_to_soln(char* buffer, int sd) {
-     if(strlen(buffer) < SOLN_LEN) {
-        char *error = form_error(" the SOLN input was malformed"); 
-        my_send(error, sd); 
-        return;
-     }
-     strtok(buffer, " "); 
      fprintf(stdout, "-----------------------------\n"); 
-     fprintf(stdout, "Buffer for soln is: %s\n", buffer);
-     fflush(stdout);
+     fprintf(stdout, "Buffer for soln is: %s\n", buffer); 
      SOLN_ARGS args;
      uint256_init(args.seed); 
      char temp[SEED_LEN + 1];
      memset(temp, 0, SEED_LEN + 1); 
+     strtok(buffer, " ");
      strcpy(temp, strtok(NULL, " "));
      if(strlen(temp) != DIFFICULTY_LEN) {
-         char *suffix = " Malformed difficulty in solution message";
+         char *suffix = " Malformed Solution message";
          char *error = form_error(suffix);
          my_send(error, sd); 
          return;
@@ -104,12 +71,11 @@ void reply_to_soln(char* buffer, int sd) {
      memset(temp, 0, SEED_LEN + 1);
      strcpy(temp, strtok(NULL, " "));
      if(strlen(temp) != SEED_LEN) {
-         char *suffix = " Malformed seed in solution message";
+         char *suffix = " Malformed Solution message";
          char *error = form_error(suffix);
          my_send(error, sd);
          return;
      }
-     fflush(stdout); 
      for(int i = SEED_LEN/2 - 1; i >= 0; i--) {
          char one_byte[3];
          strncpy(one_byte, temp + 2*i, 2); 
@@ -118,18 +84,18 @@ void reply_to_soln(char* buffer, int sd) {
      }
      fprintf(stdout, "Seed is: ");
      print_uint256(args.seed);
-     //fprintf(stdout, "\n");
+     fprintf(stdout, "\n");
      fflush(stdout);
      memset(temp, 0, SEED_LEN + 1);
      strcpy(temp, strtok(NULL, CRLF));  
      if(strlen(temp) != NONCE_LEN) {
-         char *suffix = " Malformed nonce in solution message";
+         char *suffix = " Malformed Solution message";
          char *error = form_error(suffix);
          my_send(error, sd); 
          return;
      }
      args.nonce = strtol(temp, NULL, 16);
-     fprintf(stdout, "Nonce if %lld\n", args.nonce); 
+     fprintf(stdout, "Nonce if %ld\n", args.nonce); 
      fflush(stdout); 
 
      if(check_solution(args)) {
@@ -139,77 +105,6 @@ void reply_to_soln(char* buffer, int sd) {
          char *error = form_error(" Given solution is invalid");
          my_send(error, sd); 
      }
-     fprintf(stdout, "-----------------------------\n"); 
-     fflush(stdout);
-}
-
-void add_to_work_queue(char *buffer, int sd) {
-     if(strlen(buffer) < WORK_LEN) {
-        char *error = form_error(" the WORK input was malformed"); 
-        my_send(error, sd); 
-        return;
-     }
-     fprintf(stdout, "-----------------------------\n"); 
-     fprintf(stdout, "Buffer for work is: %s\n", buffer);
-     strtok(buffer, " "); 
-     fflush(stdout);
-     Work args;
-     BYTE seed[32]; 
-     uint256_init(seed); 
-     int32 difficulty;
-     char temp[SEED_LEN + 1];
-     memset(temp, 0, SEED_LEN + 1); 
-     strcpy(temp, strtok(NULL, " "));
-     if(strlen(temp) != DIFFICULTY_LEN) {
-         char *suffix = " Malformed difficulty in work message";
-         char *error = form_error(suffix);
-         my_send(error, sd); 
-         return;
-     }
-     difficulty = strtol(temp, NULL, 16);
-     fprintf(stdout, "Difficulty: %d\n", difficulty); 
-     memset(temp, 0, SEED_LEN + 1);
-     strcpy(temp, strtok(NULL, " "));
-     if(strlen(temp) != SEED_LEN) {
-         char *suffix = " Malformed seed in work message";
-         char *error = form_error(suffix);
-         my_send(error, sd);
-         return;
-     }
-     fflush(stdout); 
-     for(int i = SEED_LEN/2 - 1; i >= 0; i--) {
-         char one_byte[3];
-         strncpy(one_byte, temp + 2*i, 2); 
-         one_byte[2] = '\0';
-         seed[i] = strtol(one_byte, NULL, 16); 
-     }
-     fprintf(stdout, "Seed is: ");
-     print_uint256(seed);
-     //fprintf(stdout, "\n");
-     fflush(stdout);
-     memset(temp, 0, SEED_LEN + 1);
-     strcpy(temp, strtok(NULL, " "));  
-     if(strlen(temp) != NONCE_LEN) {
-         char *suffix = " Malformed nonce in seed message";
-         char *error = form_error(suffix);
-         my_send(error, sd); 
-         return;
-     }
-     args.nonce = strtol(temp, NULL, 16);
-     fprintf(stdout, "Nonce is %lld\n", args.nonce); 
-     fflush(stdout); 
-     memset(temp, 0, SEED_LEN + 1);
-     strcpy(temp, strtok(NULL, CRLF));
-     if(strlen(temp) != THREAD_LEN) { 
-         char *suffix = " Malformed thread count in seed message";
-         char *error = form_error(suffix);
-         my_send(error, sd); 
-         return;
-     }
-     args.worker_count = strtol(temp, NULL, 16);
-     fprintf(stdout, "Thread count is %d\n", args.worker_count); 
-     fflush(stdout); 
-     my_send("Pop", sd);
      fprintf(stdout, "-----------------------------\n"); 
      fflush(stdout);
 }

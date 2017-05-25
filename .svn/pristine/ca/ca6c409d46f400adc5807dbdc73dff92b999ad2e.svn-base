@@ -10,8 +10,10 @@
 #include <netinet/in.h>
 #include <inttypes.h>
 
-#include "server.h"
-
+#define SEED_SIZE 32
+#define NONCE_SIZE 8
+#define TOTAL_SIZE SEED_SIZE + NONCE_SIZE
+#define BYTE_LENGTH 32
 
 bool check_solution(SOLN_ARGS sol_args) {
 
@@ -79,7 +81,7 @@ bool check_solution(SOLN_ARGS sol_args) {
 
 }
 
-void do_work(Helper work_args) {
+void do_work(WORK_ARGS work_args) {
     fprintf(stdout, "Not yet implemented"); 
     return;
 }

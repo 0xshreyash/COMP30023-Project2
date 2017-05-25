@@ -16,7 +16,7 @@ void reply_to_soln(char* buffer, int sd);
 
 void reply_to_erro(int sd);
 
-void reply_to_work(char* buffer, int sd);
+void add_to_work_queue(char* buffer, int sd);
 
 void client_abort(int sd); 
 
