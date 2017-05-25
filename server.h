@@ -19,13 +19,13 @@
 
 #define MAX_CLIENTS 100
 #define MAX_PENDING_JOBS 10
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 512
 #define MAX_MESSAGE_LEN 150
 #define ERROR_MESSAGE_LEN 40
 
 typedef struct client {
     int socket;
-    char buffer[BUFFER_SIZE + 1];
+    char *buffer;
 } Client;
 
 

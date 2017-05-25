@@ -4,8 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-
-typedef unsigned char BYTE;
+#include "sha256.h"
 
 static inline void uint256_init (BYTE *uint256) {
     if (uint256 == NULL) {

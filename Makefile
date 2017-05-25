@@ -7,8 +7,8 @@
 CC     = gcc
 CFLAGS = -Wall -Wextra -std=gnu99 -O3
 
-SRC =		server.c input_handler.c work_handler.c
-OBJ =		server.o input_handler.o work_handler.o
+SRC =		server.c input_handler.c work_handler.c sha256.c
+OBJ =		server.o input_handler.o work_handler.o sha256.o
 EXE = 		server
 
 # Creating the execuatable

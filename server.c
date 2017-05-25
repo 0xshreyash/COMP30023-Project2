@@ -11,6 +11,7 @@
 #include <netinet/in.h> 
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros  
 #include <stdbool.h>
+#include <signal.h>
 
 #include "input_handler.h"
 
@@ -45,6 +46,7 @@ int main(int argc, char *argv[]) {
 
     for(int i = 0; i < MAX_CLIENTS; i++) {
         clients[i].socket = 0;
+        clients[i].buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1)); 
         memset(clients[i].buffer, 0, BUFFER_SIZE + 1);
     }
 
@@ -78,7 +80,7 @@ int main(int argc, char *argv[]) {
     }
 
     while(TRUE) {
-
+        //fprintf(stdout, "Fine here"); 
         FD_ZERO(&readfds);
         FD_SET(master_socket, &readfds); 
         max_sd = master_socket;
@@ -104,7 +106,7 @@ int main(int argc, char *argv[]) {
             if ((new_socket = accept(master_socket, 
             (struct sockaddr *)&myaddr, (socklen_t*)&socket_length))<0) {  
                 perror("Accept Error");
-            }  
+            }
             
             //add new socket to array of sockets 
             for (int i = 0; i < MAX_CLIENTS; i++) {  
@@ -116,12 +118,10 @@ int main(int argc, char *argv[]) {
                 }  
             }  
         }
-        // Something that may cause me problems is if there is
-        // a correct incomplete message + gibberish + rest of message
-        // I may read this as being correct. 
+
         for (int i = 0; i < MAX_CLIENTS; i++) {  
             sd = clients[i].socket;  
-            //int old_len = 0;
+            
             if (FD_ISSET(sd , &readfds)) {
                 if ((len = read(sd, temp, BUFFER_SIZE)) == 0) {
                     close(sd);
@@ -131,21 +131,15 @@ int main(int argc, char *argv[]) {
                 // Max message len has been reached, ask client to dial it down
                 // a bit. 
                 if(len + strlen(clients[i].buffer) > BUFFER_SIZE) {
-                    fprintf(stdout, "Should not enter here, need to implement this"); 
-                    memset(clients[i].buffer, 0, BUFFER_SIZE + 1);
-                    int k = 0;
-                    while(temp[k] != '\0') {
-                        if(k < (len - 2) && temp[k] == '\r' && temp[k + 1] == '\n') {
-                            strcpy(clients[i].buffer, temp + k + 2); 
-                        }
-                        k++; 
-                    }
+                    char *too_long_error = form_error("The message is too long");
+                    my_send(too_long_error, sd); 
+                    continue;
                     // NEED TO CHANGE THIS. 
-                    exit(EXIT_FAILURE); 
+                    // exit(EXIT_FAILURE); 
                 }
                 else {
                     strcat(clients[i].buffer, temp); 
-                    memset(temp, 0, BUFFER_SIZE); 
+                    memset(temp, 0, BUFFER_SIZE + 1); 
                 }
                 // Optimise me in case of timeouts. 
                 int j = 0;
@@ -155,17 +149,25 @@ int main(int argc, char *argv[]) {
                     memset(rest_message, 0, BUFFER_SIZE + 1); 
                     if(j != BUFFER_SIZE - 1 && clients[i].buffer[j] == '\r' && 
                     clients[i].buffer[j + 1] == '\n') {
-
+                        if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0) {
+                            fprintf(stdout, "Buffer inside check is : %s\n", clients[i].buffer);
+                        }
+                        fflush(stdout); 
                         strncpy(first_message, clients[i].buffer, j);
                         first_message[j] = '\0';
-                        strcpy(rest_message, clients[i].buffer + j + 3);
-                        fprintf(stdout, "Rest message is: %s\n", rest_message);
+                        strcpy(rest_message, clients[i].buffer + j + 2);
+                        // fprintf(stdout, "Message is: %s\n", first_message);
                         input_handler(first_message, sd);
-                        memset(clients[i].buffer, 0, BUFFER_SIZE + 1);
+                        clients[i].buffer[0] = '\0'; 
                         strcpy(clients[i].buffer, rest_message); 
+                        clients[i].buffer[strlen(clients[i].buffer)] = '\0';
                         free(rest_message);
                         free(first_message);
-                        j += 2;    
+                        if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0
+                        && strcmp(clients[i].buffer, "") != 0) {
+                            fprintf(stdout, "Buffer towards end is : %s\n", clients[i].buffer);
+                        }
+                        j = 0;
                     }
                     else {
                         j++;

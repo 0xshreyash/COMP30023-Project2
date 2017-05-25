@@ -20,7 +20,7 @@
 void input_handler(char* buffer, int sd) {
     
     if(strncmp(buffer, PING, 4) == 0) {
-        fprintf(stdout, "PING received");
+        //fprintf(stdout, "PING received");
         my_send(PONG, sd);
     }
     else if(strncmp(buffer, PONG, 4) == 0) {
@@ -33,6 +33,8 @@ void input_handler(char* buffer, int sd) {
         reply_to_okay(sd); 
     }
     else if(strncmp(buffer, SOLN, 4) == 0) {
+        fprintf(stdout, "Fine here\n"); 
+        fflush(stdout); 
         reply_to_soln(buffer, sd); 
     }
     else if(strncmp(buffer, WORK, 4) == 0) {
@@ -48,27 +50,19 @@ void input_handler(char* buffer, int sd) {
 
 void reply_to_pong(int sd) {
     // Log here
-    fprintf(stdout, "PONG received");
-    char *suffix = "PONG message reserved for the server only";
+    //fprintf(stdout, "PONG received");
+    char *suffix = " PONG message reserved for the server only";
     char *error_message = form_error(suffix);
     my_send(error_message, sd); 
 }
 
 void reply_to_soln(char* buffer, int sd) {
+     
     
-    SOLN_ARGS args;
-    char *check = malloc(sizeof(char) * (LONGEST_SEQUENCE + 1));
-
-    // Get rid of the word SOLN
-    strtok(buffer, " ");
-    strcpy(check, strtok(NULL, " "));
-    if(strlen(check) != DIFFICULTY_LEN) {
-        fprintf(stdout, "Client WORK message invalid");
-    }
 }
 
 void reply_to_erro(int sd) {
-    char *suffix = "ERRO messages can only be sent by the server";
+    char *suffix = " ERRO messages can only be sent by the server";
     char *error_message = form_error(suffix); 
     my_send(error_message, sd); 
 }
@@ -82,13 +76,13 @@ void client_abort(int sd) {
 }
 
 void reply_to_okay(int sd) {
-    char *suffix = "ERRO messages can only be sent by the server";
+    char *suffix = " OKAY messages can only be sent by the server";
     char *error_message = form_error(suffix); 
     my_send(error_message, sd); 
 }
 
 void reply_to_gibberish(int sd) {
-    char *suffix = "Sent message not part of the protocol";
+    char *suffix = " Sent message not part of the protocol";
     char *error_message = form_error(suffix); 
     my_send(error_message, sd); 
 }
@@ -110,10 +104,10 @@ void my_send(char message[MAX_MESSAGE_LEN], int sd) {
     memset(protocol_message, 0, MAX_MESSAGE_LEN + HEADER_LENGTH + 1);
     strcat(protocol_message, (char*)message);
     strcat(protocol_message, "\r\n");
-    int n = send(sd, (BYTE *)protocol_message, strlen(protocol_message), 0); 
+    protocol_message[strlen(protocol_message)] = '\0';
+    unsigned int n = send(sd, (BYTE *)protocol_message, strlen(protocol_message), 0); 
     if (n !=  strlen(protocol_message)) {
 		perror("ERROR while writing to socket");
-		//exit(EXIT_FAILURE);
 	}
     else {
         // Log here.

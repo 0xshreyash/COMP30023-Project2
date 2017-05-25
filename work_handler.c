@@ -26,7 +26,7 @@ bool check_solution(SOLN_ARGS sol_args) {
 	    to_check[i] = sol_args.seed[i];
 	}
 	for(int i = TOTAL_SIZE - 1; i >= BYTE_LENGTH; i--) {
-		to_check[i] = temp_solution && 0xFF;
+		to_check[i] = temp_solution & 0xFF;
 		temp_solution = temp_solution >> 8;
 	}
 
@@ -36,10 +36,10 @@ bool check_solution(SOLN_ARGS sol_args) {
     int32 alpha;
     BYTE beta[BYTE_LENGTH];
     uint256_init(beta);
-    alpha = (((1 << 8) - 1) << 24) && difficulty;
+    alpha = (((1 << 8) - 1) << 24) & difficulty;
 
     for(int i = BYTE_LENGTH - 1; i > 0; i--) {
-        beta[i] = difficulty_copy && 0xFF;
+        beta[i] = difficulty_copy & 0xFF;
         difficulty_copy = difficulty_copy >> 8;
     }
     fprintf(stdout, "Alpha is: %d\n", alpha); 
