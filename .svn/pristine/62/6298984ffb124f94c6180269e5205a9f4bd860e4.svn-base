@@ -17,7 +17,6 @@
 #include "input_handler.h"
 #include "queue.h"
 #include "work_handler.h"
-#include "logger.h"
 
 #define TRUE   1 
 #define FALSE  0
@@ -40,10 +39,8 @@ int main(int argc, char *argv[]) {
     worker_queue = new_queue();
     init_input_handler(worker_queue);
     init_work_handler(worker_queue); 
-    init_logger("log.txt"); 
     if(argc < 2) {
         fprintf(stderr, "Please provide a port");
-        server_message("0.0.0.0", "could not start-up");
         exit(EXIT_SUCCESS);
     }
     pthread_create(&pid, NULL, (void *)&handling_other_thread, NULL); 
@@ -67,10 +64,9 @@ int main(int argc, char *argv[]) {
 
     if((master_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("Error opening socket. Please try again.");
-        server_message("0.0.0.0", "could not open socket.");
         exit(EXIT_FAILURE);
     }
-    server_message("0.0.0.0", "started successfully.");
+
     /*
     if(setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, 
        sizeof(opt)) < 0 )  {  
@@ -87,7 +83,6 @@ int main(int argc, char *argv[]) {
 
     if (bind(master_socket, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0) {  
         perror("Binding failed. Please try again.");  
-        server_message("0.0.0.0", "could not bind port");
         exit(EXIT_FAILURE);
     }
 
@@ -130,8 +125,7 @@ int main(int argc, char *argv[]) {
                 //if position is empty 
                 if(clients[i].socket == 0) {  
                     clients[i].socket = new_socket;  
-                    //fprintf(stderr, "Adding to list of sockets as %d\n" , i);
-                    put_log(clients[i].socket, "connected", inet_ntoa(myaddr.sin_addr)); 
+                    //fprintf(stderr, "Adding to list of sockets as %d\n" , i);  
                     break;  
                 }  
             }  
@@ -145,7 +139,6 @@ int main(int argc, char *argv[]) {
                     sweep_and_remove(clients[i].socket);
                     clients[i].socket = 0;
                     memset(clients[i].buffer, 0, BUFFER_SIZE + 1);
-                    put_log(clients[i].socket, "saying goodbye!", inet_ntoa(myaddr.sin_addr)); 
                     close(sd);
                     set_abort_flag_false();
                     continue;
@@ -154,14 +147,12 @@ int main(int argc, char *argv[]) {
                 // a bit. 
                 if(len + strlen(clients[i].buffer) > BUFFER_SIZE) {
                     char *too_long_error = form_error("The message is too long");
-                    put_log(clients[i].socket, "message too long", "0.0.0.0");
                     my_send(too_long_error, sd);
                     continue;
                     // NEED TO CHANGE THIS. 
                     // exit(EXIT_FAILURE); 
                 }
                 else {
-                    put_log(sd, clients[i].buffer, inet_ntoa(myaddr.sin_addr));
                     strcat(clients[i].buffer, temp); 
                     memset(temp, 0, BUFFER_SIZE + 1); 
                 }
@@ -187,6 +178,10 @@ int main(int argc, char *argv[]) {
                         clients[i].buffer[strlen(clients[i].buffer)] = '\0';
                         free(rest_message);
                         free(first_message);
+                        /*if(strcmp(clients[i].buffer, "PING\r\n") != 0 && strcmp(clients[i].buffer, "PONG\r\n") != 0
+                        && strcmp(clients[i].buffer, "") != 0) {
+                            fprintf(stdout, "Buffer towards end is : %s\n", clients[i].buffer);
+                        }*/
                         j = 0;
                     }
                     else {
@@ -223,7 +218,6 @@ void handling_other_thread() {
             do_work(help);
             queue_dequeue(worker_queue);
             set_abort_flag_false(); 
-
             fprintf(stdout, "Queue size is: %d\n", worker_queue->items->size); 
         }
     }

@@ -328,9 +328,9 @@ void my_send(char message[MAX_MESSAGE_LEN], int sd) {
     char protocol_message[MAX_MESSAGE_LEN + HEADER_LENGTH + 1];
     memset(protocol_message, 0, MAX_MESSAGE_LEN + HEADER_LENGTH + 1);
     strcat(protocol_message, (char*)message);
-    put_log(sd, protocol_message, "0.0.0.0");
     strcat(protocol_message, CRLF);
     protocol_message[strlen(protocol_message)] = '\0';
+    put_log(sd, protocol_message, "0.0.0.0");
     unsigned int n = send(sd, (BYTE *)protocol_message, strlen(protocol_message), 0); 
     if (n !=  strlen(protocol_message)) {
 		perror("ERROR while writing to socket");

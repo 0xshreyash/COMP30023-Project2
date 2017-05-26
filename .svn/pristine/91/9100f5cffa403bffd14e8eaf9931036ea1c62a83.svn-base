@@ -1,0 +1,9 @@
+[TIME]    [CLIENT]    [INTERACTION]   [IP ADDRESS][17:34:58], [started successfully.] 0.0.0.0
+[17:35:03], [127.0.0.1] from socket[5] sent message: [connected]
+[17:35:04], [127.0.0.1] from socket[5] sent message: []
+[17:35:04], [0.0.0.0] from socket[5] sent message: [PONG
+]
+[17:35:18], [127.0.0.1] from socket[5] sent message: []
+[17:35:18], [0.0.0.0] from socket[5] sent message: [OKAY
+]
+[17:35:20], [127.0.0.1] from socket[0] sent message: [saying goodbye!]

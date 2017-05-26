@@ -11,26 +11,9 @@
 #include <stdbool.h>
 
 /**************** Typedef structs *******************************/
+
+typedef struct list List;
 typedef struct node Node;
-
-/**************** Structure definitions ********************/
-
-// a list node points to the next and previosu node in the list, 
-// and to some data
-struct node {
-    Node *next;
-	Node *prev;
-	void *data;
-};
-
-// a list points to its first and last nodes, and stores 
-// its size (num. nodes)
-typedef struct list {
-	Node *head;
-	Node *tail;
-	int size;
-	//List *list;
-}List;
 
 
 /************* Shreyash's function declarations ****************/

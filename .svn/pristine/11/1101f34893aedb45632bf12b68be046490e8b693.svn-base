@@ -1,0 +1,82 @@
+[TIME]    [CLIENT]    [INTERACTION]   [IP ADDRESS][17:44:34], [started successfully.] 0.0.0.0
+[17:44:38], [127.0.0.1] from socket 5 sent message: connected
+[17:44:39], [127.0.0.1] from socket 5 sent message: 
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERRO Sent message not part of the protocol
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [127.0.0.1] from socket 5 sent message:    This is 
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERRO Sent message not part of the protocol
+[17:44:39], [0.0.0.0] from socket 5 sent message: message too long
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:44:39], [127.0.0.1] from socket 5 sent message: ion is st
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERRO Sent message not part of the protocol
+[17:44:39], [0.0.0.0] from socket 5 sent message: ERRO Sent message not part of the protocol
+[17:45:05], [0.0.0.0] from socket 5 sent message: message too long
+[17:45:05], [0.0.0.0] from socket 5 sent message: ERROThe message is too long
+[17:45:05], [127.0.0.1] from socket 5 sent message:             This is part o
+[17:45:05], [0.0.0.0] from socket 5 sent message: ERRO Sent message not part of the protocol
+[17:45:40], [127.0.0.1] from socket 0 sent message: saying goodbye!
+[17:45:43], [127.0.0.1] from socket 5 sent message: connected
+[17:45:53], [127.0.0.1] from socket 5 sent message: 
+[17:45:58], [127.0.0.1] from socket 0 sent message: saying goodbye!
+[17:46:00], [127.0.0.1] from socket 5 sent message: connected
+[17:46:02], [127.0.0.1] from socket 5 sent message: 
+[17:46:02], [127.0.0.1] from socket 5 sent message: PING
+[17:46:02], [0.0.0.0] from socket 5 sent message: PONG
+[17:46:04], [127.0.0.1] from socket 5 sent message: 
+[17:46:04], [127.0.0.1] from socket 5 sent message: PONG
+[17:46:04], [0.0.0.0] from socket 5 sent message: ERRO PONG message reserved for the server only
+[17:46:05], [127.0.0.1] from socket 5 sent message: 
+[17:46:05], [127.0.0.1] from socket 5 sent message: PING
+[17:46:05], [0.0.0.0] from socket 5 sent message: PONG
+[17:46:08], [127.0.0.1] from socket 5 sent message: 
+[17:46:08], [127.0.0.1] from socket 5 sent message: PING
+[17:46:08], [0.0.0.0] from socket 5 sent message: PONG
+[17:46:09], [127.0.0.1] from socket 5 sent message: 
+[17:46:09], [0.0.0.0] from socket 5 sent message: PONG
+[17:46:10], [127.0.0.1] from socket 5 sent message: 
+[17:46:10], [127.0.0.1] from socket 5 sent message: PING
+[17:46:10], [0.0.0.0] from socket 5 sent message: PONG
+[17:46:13], [127.0.0.1] from socket 5 sent message: 
+[17:46:13], [127.0.0.1] from socket 5 sent message: WORK 
+[17:46:13], [0.0.0.0] from socket 5 sent message: ERRO the WORK input was malformed
+[17:46:16], [127.0.0.1] from socket 5 sent message: 
+[17:46:16], [127.0.0.1] from socket 5 sent message: WORK djcvdjvpods
+[17:46:16], [0.0.0.0] from socket 5 sent message: ERRO the WORK input was malformed
+[17:46:28], [127.0.0.1] from socket 0 sent message: saying goodbye!
+[17:46:30], [127.0.0.1] from socket 5 sent message: connected
+[17:46:37], [127.0.0.1] from socket 5 sent message: 
+[17:46:37], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:38], [127.0.0.1] from socket 5 sent message: 
+[17:46:38], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:38], [127.0.0.1] from socket 5 sent message: 
+[17:46:38], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:39], [127.0.0.1] from socket 5 sent message: 
+[17:46:39], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:39], [127.0.0.1] from socket 5 sent message: 
+[17:46:39], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:45], [127.0.0.1] from socket 5 sent message: 
+[17:46:45], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:46], [127.0.0.1] from socket 5 sent message: 
+[17:46:46], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:46], [127.0.0.1] from socket 5 sent message: 
+[17:46:50], [127.0.0.1] from socket 5 sent message: 
+[17:46:50], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:51], [127.0.0.1] from socket 5 sent message: 
+[17:46:51], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:52], [127.0.0.1] from socket 5 sent message: 
+[17:46:52], [127.0.0.1] from socket 5 sent message: WORK 1d29ffff 0000000019d6689c085ae165831e934ff763ae46a218a6c172b3f1b60a8ce26f a900000003b4ab00 04
+[17:46:52], [0.0.0.0] from socket 5 sent message: ERRO cannot take any more jobs, server at capacity
+[17:47:05], [127.0.0.1] from socket 0 sent message: saying goodbye!

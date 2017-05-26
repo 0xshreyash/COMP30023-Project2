@@ -3,12 +3,8 @@
 
 #include "sha256.h"
 #include "server.h"
-#include "queue.h"
 
 #define HEADER_LENGTH 4
-#define SOLN_LEN 95
-
-void init_input_handler(Queue *queue);
 
 void input_handler(char* buffer, int sd);
 
@@ -31,7 +27,5 @@ void reply_to_gibberish(int sd);
 char *form_error(char *suffix);
 
 void my_send(char message[MAX_MESSAGE_LEN + HEADER_LENGTH + 2], int sd); 
-
-void sweep_and_remove(int sd);
 
 #endif

@@ -11,22 +11,17 @@
 
 #include "server.h"
 #include "work_handler.h"
-#include "logger.h"
+#include "queue.h"
 
 #define DIFFICULTY_LEN 8
 #define SEED_LEN 64
 #define NONCE_LEN 16
+#define SOLN_LEN 95
 #define WORK_LEN 98
 #define THREAD_LEN 2
 
 void print_soln(char *buffer, int sd); 
 void print_work(char *buffer, int sd);
-
-Queue *working_queue;
-
-void init_input_handler(Queue *queue) {
-    working_queue = queue;
-}
 
 void input_handler(char* buffer, int sd) {
     
@@ -133,8 +128,8 @@ void reply_to_soln(char* buffer, int sd) {
          my_send(error, sd); 
          return;
      }
-     args.nonce = strtoull(temp, NULL, 16);
-     fprintf(stdout, "Nonce is %llu\n", args.nonce); 
+     args.nonce = strtol(temp, NULL, 16);
+     fprintf(stdout, "Nonce if %lld\n", args.nonce); 
      fflush(stdout); 
 
      if(check_solution(args)) {
@@ -158,8 +153,7 @@ void add_to_work_queue(char *buffer, int sd) {
      fprintf(stdout, "Buffer for work is: %s\n", buffer);
      strtok(buffer, " "); 
      fflush(stdout);
-     Work *args = malloc(sizeof *args);
-     args->sd = sd;
+     Work args;
      BYTE seed[32]; 
      uint256_init(seed); 
      int32 difficulty;
@@ -174,7 +168,6 @@ void add_to_work_queue(char *buffer, int sd) {
      }
      difficulty = strtol(temp, NULL, 16);
      fprintf(stdout, "Difficulty: %d\n", difficulty); 
-     args->difficulty = difficulty; 
      memset(temp, 0, SEED_LEN + 1);
      strcpy(temp, strtok(NULL, " "));
      if(strlen(temp) != SEED_LEN) {
@@ -199,12 +192,11 @@ void add_to_work_queue(char *buffer, int sd) {
      if(strlen(temp) != NONCE_LEN) {
          char *suffix = " Malformed nonce in seed message";
          char *error = form_error(suffix);
-         my_send(error, sd);
+         my_send(error, sd); 
          return;
      }
-     fprintf(stdout, "Nonce string is: %s\n", temp); 
-     args->nonce = strtoull(temp, NULL, 16);
-     fprintf(stdout, "Nonce is %llu\n", args->nonce); 
+     args.nonce = strtol(temp, NULL, 16);
+     fprintf(stdout, "Nonce is %lld\n", args.nonce); 
      fflush(stdout); 
      memset(temp, 0, SEED_LEN + 1);
      strcpy(temp, strtok(NULL, CRLF));
@@ -214,58 +206,12 @@ void add_to_work_queue(char *buffer, int sd) {
          my_send(error, sd); 
          return;
      }
-     args->worker_count = strtol(temp, NULL, 16);
-     fprintf(stdout, "Thread count is %d\n", args->worker_count); 
-     fflush(stdout);
-     //my_send("Pop", sd);
-
-     for(int i = 0; i < BYTE_LENGTH; i++) {
-         args->x[i] = seed[i];
-     }
-     int64 nonce_copy = args->nonce; 
-     for(int i = TOTAL_SIZE - 1; i >= BYTE_LENGTH; i--) {
-         args->x[i] = nonce_copy & 0xFF;
-         nonce_copy = nonce_copy >> 8;
-     }
-
-     int32 alpha;
-     BYTE beta[BYTE_LENGTH];
-     uint256_init(beta);
-     alpha = ((((1 << 8) - 1) << 24) & difficulty) >> 24;
-     int32 beta_num = ((1 << 24) - 1) & difficulty; 
-     fprintf(stdout, "Number beta is: %d\n", beta_num); 
-     for(int i = BYTE_LENGTH - 1; i >= 0; i--) {
-         beta[i] = beta_num & 0xFF;
-         beta_num = beta_num >> 8;
-     }
-     fprintf(stdout, "Alpha is: %d\n", alpha); 
-     fprintf(stdout, "Beta is:");
-     print_uint256(beta);
-     fprintf(stdout, "\n");
-     /* Need to find the exponent using alpha and beta */
-     //BYTE target[BYTE_LENGTH];
-     uint256_init(args->target); 
-     int32 exponent = 8 * (alpha - 3);
-     BYTE exponent_num[32];
-     uint256_init(exponent_num);
-	 BYTE base[32];
-	 uint256_init(base);
-	 base[31] = 2;
-	 uint256_exp(exponent_num, base, exponent);
-     uint256_mul(args->target, beta, exponent_num);
-     fprintf(stdout, "Target: ");
-     print_uint256(args->target); 
+     args.worker_count = strtol(temp, NULL, 16);
+     fprintf(stdout, "Thread count is %d\n", args.worker_count); 
+     fflush(stdout); 
+     my_send("Pop", sd);
      fprintf(stdout, "-----------------------------\n"); 
      fflush(stdout);
-     //my_send("IMDVMFDKO MSK", sd);
-     /* Mutex lock inserted inside queue */
-     if(queue_size(working_queue) >= 10) {
-         char *error = form_error(" cannot take any more jobs, server at capacity");
-         my_send(error, sd); 
-     }
-     else {
-         queue_enqueue(working_queue, args);
-     }
 }
 
 void reply_to_erro(int sd) {
@@ -274,30 +220,12 @@ void reply_to_erro(int sd) {
     my_send(error_message, sd); 
 }
 
-void client_abort(int sd) {
-    sweep_and_remove(sd); 
-    my_send(OKAY, sd); 
+void reply_to_work(char* buffer, int sd) {
+    my_send("Nothing here yet", sd); 
 }
 
-void sweep_and_remove(int sd) {
-    int count = 0; 
-    if(working_queue->items->head == NULL) {
-        return;
-    }
-    Node *node = working_queue->items->head->next; 
-    while(node != NULL) {
-        Work *work = (Work *)node->data;
-        if(work->sd == sd) {
-            queue_remove_from_middle(working_queue, node);
-            fprintf(stdout, "Items removed %d\n", ++count);
-        }
-        node = node->next; 
-    }
-    Work *work = (Work *)working_queue->items->head->data;
-    if(work->sd == sd) {
-        set_abort_flag_true();
-    }
-    return;
+void client_abort(int sd) {
+
 }
 
 void reply_to_okay(int sd) {
@@ -328,7 +256,6 @@ void my_send(char message[MAX_MESSAGE_LEN], int sd) {
     char protocol_message[MAX_MESSAGE_LEN + HEADER_LENGTH + 1];
     memset(protocol_message, 0, MAX_MESSAGE_LEN + HEADER_LENGTH + 1);
     strcat(protocol_message, (char*)message);
-    put_log(sd, protocol_message, "0.0.0.0");
     strcat(protocol_message, CRLF);
     protocol_message[strlen(protocol_message)] = '\0';
     unsigned int n = send(sd, (BYTE *)protocol_message, strlen(protocol_message), 0); 

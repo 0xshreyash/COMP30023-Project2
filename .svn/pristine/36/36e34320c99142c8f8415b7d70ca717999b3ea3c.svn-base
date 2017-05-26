@@ -10,21 +10,10 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 #include "list.h"
-#include "pthread.h"
 
 /********************** Typedefing structures ***************************/
 
 typedef struct queue Queue;
-
-/*********************** Structure Definitions **************************/
-
-// a Queue is just a wrapper for a list of its items
-// we will use the back of the list as the entry point, and the front as the 
-// exit point (to take advantage of O(1) insert and remove operations)
-struct queue {
-	List *items;
-	pthread_mutex_t mutex;
-};
 
 /*********************** Function Declarations ****************************/
 

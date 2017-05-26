@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h> 
+#include <time.h>
+
+#include "logger.h"
+
+FILE* my_log;
+
+void init_logger(char* log_file) {
+    my_log = fopen(log_file, "w");
+    fprintf(my_log, "[TIME]    [CLIENT]    [INTERACTION]   [IP ADDRESS]");
+    fflush(my_log);
+}
+
+void put_log(int socket, char* msg, char* ip_address) {
+	struct tm* local_time;
+	time_t curr_time;
+	curr_time = time(NULL);
+	local_time = localtime(&curr_time);
+
+	fprintf(my_log, "[%02d:%02d:%02d], ", local_time->tm_hour,
+									local_time->tm_min, local_time->tm_sec);
+    fprintf(my_log, "[%s] from socket", ip_address);
+	fprintf(my_log, " %d sent message: ", socket);
+	fprintf(my_log, "%s\n", msg);
+	fflush(my_log);
+}
+
+void server_message(char *msg, char *ip_address) {
+    struct tm* local_time;
+	time_t curr_time;
+	curr_time = time(NULL);
+	local_time = localtime(&curr_time);
+
+	fprintf(my_log, "[%02d:%02d:%02d], ", local_time->tm_hour,
+									local_time->tm_min, local_time->tm_sec);
+    fprintf(my_log, "[%s] ", ip_address);
+	fprintf(my_log, "%s\n", msg);
+	fflush(my_log);
+}

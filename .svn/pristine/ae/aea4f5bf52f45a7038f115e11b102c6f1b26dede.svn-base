@@ -11,7 +11,17 @@
 #include <assert.h>
 #include "queue.h"
 
-/************** Function Definitions ****************************/
+/*********************** Structure Definitions **************************/
+
+// a Queue is just a wrapper for a list of its items
+// we will use the back of the list as the entry point, and the front as the 
+// exit point (to take advantage of O(1) insert and remove operations)
+struct queue {
+	List *items;
+};
+
+
+/*********************** Function Definitions ****************************/
 
 
 /*********************   Shreyash's Functions ****************************/
@@ -42,10 +52,7 @@ Node *queue_get_head(Queue *queue) {
  * from anywhere in the queue (list);
  */
 void *queue_remove_from_middle(Queue *queue, Node *node) {
-	pthread_mutex_lock(&(queue->mutex));
-	void *removed_node = remove_from_middle(queue->items, node); 
-	pthread_mutex_unlock(&(queue->mutex));
-	return removed_node;
+	return remove_from_middle(queue->items, node);
 }
 
 /**********************  Matt's Functions ********************************/
@@ -54,8 +61,9 @@ void *queue_remove_from_middle(Queue *queue, Node *node) {
 Queue *new_queue() {
 	Queue *queue = malloc(sizeof *queue);
 	assert(queue);
-	pthread_mutex_init(&(queue->mutex), NULL);
+
 	queue->items = new_list();
+	
 	return queue;
 }
 
@@ -69,23 +77,20 @@ void free_queue(Queue *queue) {
 
 // insert a new item at the back of a queue. O(1).
 void queue_enqueue(Queue *queue, void *data) {
-	pthread_mutex_lock(&(queue->mutex));
+	
 	assert(queue != NULL);
 	// use the back of the list as the entry point
 	list_add_end(queue->items, data);
-	pthread_mutex_unlock(&(queue->mutex));
 }
 
 // remove and return the item at the front of a queue. O(1).
 // error if the queue is empty (so first ensure queue_size() > 0)
 void *queue_dequeue(Queue *queue) {
-	pthread_mutex_lock(&(queue->mutex));
 	assert(queue != NULL);
 	assert(queue_size(queue) > 0);
-	void *node = list_remove_start(queue->items);
+
 	// use the front of the list as the exit point
-	pthread_mutex_unlock(&(queue->mutex));
-	return node; 
+	return list_remove_start(queue->items);
 }
 
 // return the number of items currently in a queue
@@ -94,6 +99,11 @@ int queue_size(Queue *queue) {
 	// delegate straight to list size function
 	return list_size(queue->items);
 }
+
+/*void queue_remove(Queue *queue, void *data) {
+	list_remove(queue->items, data);
+	
+}*/
 
 /**************************************************************************/
 

@@ -11,7 +11,6 @@
 
 #include "server.h"
 #include "work_handler.h"
-#include "logger.h"
 
 #define DIFFICULTY_LEN 8
 #define SEED_LEN 64
@@ -259,13 +258,7 @@ void add_to_work_queue(char *buffer, int sd) {
      fflush(stdout);
      //my_send("IMDVMFDKO MSK", sd);
      /* Mutex lock inserted inside queue */
-     if(queue_size(working_queue) >= 10) {
-         char *error = form_error(" cannot take any more jobs, server at capacity");
-         my_send(error, sd); 
-     }
-     else {
-         queue_enqueue(working_queue, args);
-     }
+     queue_enqueue(working_queue, args);
 }
 
 void reply_to_erro(int sd) {
@@ -328,7 +321,6 @@ void my_send(char message[MAX_MESSAGE_LEN], int sd) {
     char protocol_message[MAX_MESSAGE_LEN + HEADER_LENGTH + 1];
     memset(protocol_message, 0, MAX_MESSAGE_LEN + HEADER_LENGTH + 1);
     strcat(protocol_message, (char*)message);
-    put_log(sd, protocol_message, "0.0.0.0");
     strcat(protocol_message, CRLF);
     protocol_message[strlen(protocol_message)] = '\0';
     unsigned int n = send(sd, (BYTE *)protocol_message, strlen(protocol_message), 0); 

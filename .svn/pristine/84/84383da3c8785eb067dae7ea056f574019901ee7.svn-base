@@ -11,15 +11,7 @@
 #include <inttypes.h>
 
 #include "server.h"
-#include "input_handler.h"
 
-Queue *working_queue;
-bool abort_flag;
-
-void init_work_handler(Queue *queue) {
-    working_queue = queue;
-    abort_flag = false;
-}
 
 bool check_solution(SOLN_ARGS sol_args) {
 
@@ -84,63 +76,10 @@ bool check_solution(SOLN_ARGS sol_args) {
     if (sha256_compare(target, hash_hash) > 0)
 		return true;
 	return false;
+
 }
 
-void do_work(Helper *args) {
-    fprintf(stdout, "%llu\n", args->start);
-    fprintf(stdout, "%llu\n", args->end);
-    for(int64 i = args->start; i <= args->end; i++) {
-        if(abort_flag == true) {
-            fprintf(stdout, "Setting abort flag to true"); 
-            return;
-        }
-        fflush(stdout); 
-        int64 i_cpy = i;
-        for(int j = TOTAL_SIZE - 1; j >= BYTE_LENGTH; j--) {
-            args->x[j] = i_cpy & 0XFF;
-            i_cpy = i_cpy >> 8;
-        }
-        //fprintf(stdout, "%lld\n", i);
-        BYTE hash[SHA256_BLOCK_SIZE];
-        uint256_init(hash); 
-        BYTE hash_hash[SHA256_BLOCK_SIZE];
-        uint256_init(hash_hash);
-        SHA256_CTX *ctx = malloc(sizeof *ctx);
-        // First hash
-        sha256_init(ctx); 
-        sha256_update(ctx, args->x, TOTAL_SIZE);
-        sha256_final(ctx, hash);
-        // Second hash
-        sha256_init(ctx);
-        sha256_update(ctx, hash, SHA256_BLOCK_SIZE);
-        sha256_final(ctx, hash_hash);
-
-        if (sha256_compare(args->target, hash_hash) > 0) {
-            fprintf(stdout, "Hello\n"); 
-            char *message = malloc(sizeof(char) * (SOLN_LEN + 1));
-            sprintf(message, "SOLN %08x ", args->difficulty);
-            char *t = malloc(sizeof(char) * BYTE_LENGTH); 
-            for(int i = 0; i < BYTE_LENGTH; i++) {
-                sprintf(t, "%02x", args->x[i]); 
-                strcat(message, t);
-            }
-            sprintf(t, " %016llx", i);
-            strcat(message, t);
-            fflush(stdout); 
-            my_send(message, args->sd);
-            return;
-        }
-    }
-    if(abort_flag == true) {
-        abort_flag = false;
-    }
+void do_work(Helper work_args) {
+    fprintf(stdout, "Not yet implemented"); 
     return;
-}
-
-void set_abort_flag_true() {
-    abort_flag = true;
-}
-
-void set_abort_flag_false() {
-    abort_flag = false;
 }
